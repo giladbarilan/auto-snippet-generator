@@ -124,8 +124,14 @@ namespace ASG
                 {
                     string text = File.ReadAllText(fileName); //the text of the file
 
-                    Regex matchDefaultCtor = new Regex(@"public \S+([ ]|\n|\t)*\([ ]*\)"); //search for a default constructor.
+                    Regex matchDefaultCtor = new Regex(@$"public[ ]+\S+([ ]|{Environment.NewLine}|\t)*\([ ]*\)"); //search for a default constructor.
                     var defaultConstructors = matchDefaultCtor.Matches(text);
+
+                    Regex matchStructs = new Regex(@$"struct[ ]+\S+([ ]|{Environment.NewLine}|\t)*{{"); //search for structs.
+                    var structMatches = matchStructs.Matches(text);
+
+                    //adds the structs to the default constructors.
+                    ctorNames.AddRange(structMatches.Select(x => x.Value.TrimStart().TrimEnd().Split(" ")[1].Trim().Replace("{","")));
 
                     //returns all the ctor names in the file.
                     ctorNames.AddRange(defaultConstructors.Select(
